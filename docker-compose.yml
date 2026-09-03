@@ -15,5 +15,39 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build:
+      context: ./app/backend
+    container_name: three-tier-backend
+    restart: unless-stopped
+
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+
+    ports:
+      - "5001:5000"
+
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./app/frontend
+    container_name: three-tier-frontend
+    restart: unless-stopped
+
+    environment:
+      BACKEND_URL: http://backend:5000
+
+    ports:
+      - "5002:5002"
+
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
